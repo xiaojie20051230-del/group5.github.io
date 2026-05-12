@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+      响应式布局实践：从固定宽度到流式适配 - 第五组博客
+    
+  </title>
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>响应式布局实践：从固定宽度到流式适配 | 第五组博客</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="响应式布局实践：从固定宽度到流式适配" />
+<meta name="author" content="张三" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="引言" />
+<meta name="twitter:description" property="og:description" content="引言" />
+<link rel="canonical" href="https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html" />
+<meta property="og:url" content="https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html" />
+<meta property="og:site_name" content="第五组博客" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-05-08T02:00:00+00:00" />
+<meta property="article:modified_time" content="2026-05-08T02:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="响应式布局实践：从固定宽度到流式适配" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"张三"},"dateModified":"2026-05-08T02:00:00+00:00","datePublished":"2026-05-08T02:00:00+00:00","description":"引言","headline":"响应式布局实践：从固定宽度到流式适配","mainEntityOfPage":{"@type":"WebPage","@id":"https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html"},"url":"https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/group5.github.io/assets/css/custom.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="main-nav">
+      <a href="/group5.github.io/" class="logo">第五组博客</a>
+      <ul class="nav-links">
+        <li><a href="/group5.github.io/">首页</a></li>
+        <li><a href="/group5.github.io/about/">关于</a></li>
+        <li><a href="/group5.github.io/categories/">分类</a></li>
+      </ul>
+      <div class="search-box" id="search-box">
+        <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">响应式布局实践：从固定宽度到流式适配</h1>
+    <div class="post-meta">
+      <span class="post-date">2026年05月08日</span>
+      
+        <span class="post-author">张三</span>
+      
+      
+        <span class="post-categories">
+          
+            <a href="/group5.github.io/categories/#%E6%8A%80%E6%9C%AF">技术</a>
+            , 
+          
+            <a href="/group5.github.io/categories/#%E5%89%8D%E7%AB%AF">前端</a>
+            
+          
+        </span>
+      
+    </div>
+  </header>
+
+  <div class="post-body">
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-sticky">
+        <h3 class="toc-title">目录</h3>
+        <nav class="toc-nav" id="toc-nav"></nav>
+      </div>
+    </aside>
+
+    <div class="post-content" id="post-content">
+      <h2 id="引言">引言</h2>
+
+<p>在搭建这个博客的过程中，我深刻体会到一个道理：<strong>你的网站必须在任何设备上都能正常阅读</strong>。桌面端用户可能用 27 寸显示器，而移动端用户可能只在 375px 宽的屏幕上浏览。响应式设计（Responsive Design）就是解决这个问题的核心方案。</p>
+
+<h2 id="核心概念">核心概念</h2>
+
+<h3 id="流式布局-vs-固定布局">流式布局 vs 固定布局</h3>
+
+<p>固定布局使用像素（px）定义宽度，而流式布局使用百分比或弹性单位。在我们的博客中，<code class="language-plaintext highlighter-rouge">max-width</code> 配合 <code class="language-plaintext highlighter-rouge">margin: 0 auto</code> 是一种常见的居中策略：</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$post-max-width</span><span class="p">:</span> <span class="m">800px</span><span class="p">;</span>
+
+<span class="nc">.post</span> <span class="p">{</span>
+  <span class="nl">max-width</span><span class="p">:</span> <span class="nv">$post-max-width</span><span class="p">;</span>
+  <span class="nl">margin</span><span class="p">:</span> <span class="m">0</span> <span class="nb">auto</span><span class="p">;</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">0</span> <span class="m">1rem</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>当屏幕小于 800px 时，内容会自动收缩；大于 800px 时，内容居中显示，不会无限拉长导致阅读困难。</p>
+
+<h3 id="视口设置">视口设置</h3>
+
+<p>移动设备默认会模拟桌面宽度渲染网页，导致文字过小。必须在 HTML 的 <code class="language-plaintext highlighter-rouge">&lt;head&gt;</code> 中加入：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width, initial-scale=1.0"</span><span class="nt">&gt;</span>
+</code></pre></div></div>
+
+<p>这告诉浏览器：<strong>按设备实际宽度渲染，初始缩放为 1 倍</strong>。</p>
+
+<h2 id="媒体查询实战">媒体查询实战</h2>
+
+<h3 id="导航栏的响应式改造">导航栏的响应式改造</h3>
+
+<p>桌面端导航栏是水平排列的：</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.main-nav</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">flex</span><span class="p">;</span>
+  <span class="nl">justify-content</span><span class="p">:</span> <span class="nb">space-between</span><span class="p">;</span>
+  <span class="nl">align-items</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>但在小屏幕上，水平空间不足，需要改为垂直堆叠：</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@media</span> <span class="p">(</span><span class="n">max-width</span><span class="o">:</span> <span class="m">600px</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nc">.main-nav</span> <span class="p">{</span>
+    <span class="nl">flex-direction</span><span class="p">:</span> <span class="nb">column</span><span class="p">;</span>
+    <span class="nl">gap</span><span class="p">:</span> <span class="m">1rem</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="toc-侧边栏的显隐控制">TOC 侧边栏的显隐控制</h3>
+
+<p>文章目录（Table of Contents）在桌面端作为侧边栏固定在右侧，但在移动端会挤占正文空间。我们的解决方案是：<strong>小屏幕直接隐藏，大屏幕才显示</strong>。</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.toc-sidebar</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@media</span> <span class="p">(</span><span class="n">min-width</span><span class="o">:</span> <span class="m">1200px</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nc">.toc-sidebar</span> <span class="p">{</span>
+    <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
+    <span class="nl">width</span><span class="p">:</span> <span class="m">220px</span><span class="p">;</span>
+    <span class="nl">position</span><span class="p">:</span> <span class="nb">sticky</span><span class="p">;</span>
+    <span class="nl">top</span><span class="p">:</span> <span class="m">80px</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="常见陷阱">常见陷阱</h2>
+
+<h3 id="图片溢出">图片溢出</h3>
+
+<p>未设置最大宽度的图片会在小屏幕上撑破容器：</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.post-content</span> <span class="nt">img</span> <span class="p">{</span>
+  <span class="nl">max-width</span><span class="p">:</span> <span class="m">100%</span><span class="p">;</span>
+  <span class="nl">height</span><span class="p">:</span> <span class="nb">auto</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="触摸目标过小">触摸目标过小</h3>
+
+<p>按钮和链接在移动端的最小点击区域应为 44×44 像素。我们的返回顶部按钮就遵循了这个原则：</p>
+
+<div class="language-scss highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.back-to-top</span> <span class="p">{</span>
+  <span class="nl">width</span><span class="p">:</span> <span class="m">44px</span><span class="p">;</span>
+  <span class="nl">height</span><span class="p">:</span> <span class="m">44px</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="测试方法">测试方法</h2>
+
+<ol>
+  <li><strong>Chrome DevTools</strong>：按 F12 → 切换设备工具栏 → 选择 iPhone SE / iPad / Desktop</li>
+  <li><strong>真实设备</strong>：用手机访问局域网地址（Jekyll 启动时加上 <code class="language-plaintext highlighter-rouge">--host 0.0.0.0</code>）</li>
+  <li><strong>逐步缩放</strong>：直接缩小浏览器窗口，观察断点（breakpoint）处的变化</li>
+</ol>
+
+<h2 id="总结">总结</h2>
+
+<p>响应式设计不是”为手机单独做一个网站”，而是<strong>让同一套代码自适应所有设备</strong>。关键记住三点：</p>
+
+<ol>
+  <li>设置正确的 viewport</li>
+  <li>使用流式布局和弹性盒子</li>
+  <li>用媒体查询在关键断点调整布局</li>
+</ol>
+
+<p>本博客的响应式改造共涉及 3 个媒体查询断点（1200px、768px、600px），覆盖了从手机到桌面的全场景。</p>
+
+    </div>
+  </div>
+
+  <footer class="post-footer">
+    
+      <div class="post-tags">
+        
+          <span class="tag">#响应式</span>
+        
+          <span class="tag">#CSS</span>
+        
+          <span class="tag">#媒体查询</span>
+        
+          <span class="tag">#移动端</span>
+        
+      </div>
+    
+
+    <nav class="post-nav">
+      
+        <a class="prev" href="/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/08/post-gallery.html">&larr; Post: Gallery</a>
+      
+      
+        <a class="next" href="/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/08/search-implementation.html">静态博客的搜索功能实现原理 &rarr;</a>
+      
+    </nav>
+  </footer>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 第五组博客 | 使用 Jekyll &amp; GitHub Pages 构建</p>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" title="返回顶部"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4l-8 8h6v8h4v-8h6z"/></svg></button>
+
+  <script>
+    (function () {
+      // 返回顶部
+      const backToTop = document.getElementById('back-to-top');
+      function toggleBackToTop() {
+        if (window.scrollY > 300) {
+          backToTop.classList.add('show');
+        } else {
+          backToTop.classList.remove('show');
+        }
+      }
+      window.addEventListener('scroll', toggleBackToTop, { passive: true });
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // 代码复制按钮
+      document.querySelectorAll('pre').forEach(function (pre) {
+        const btn = document.createElement('button');
+        btn.className = 'code-copy-btn';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+        btn.addEventListener('click', function () {
+          const code = pre.querySelector('code');
+          const text = code ? code.textContent : pre.textContent;
+
+          function showCopied() {
+            btn.classList.add('copied');
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 已复制';
+            setTimeout(function () {
+              btn.classList.remove('copied');
+              btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+            }, 2000);
+          }
+
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+
+          function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              document.execCommand('copy');
+              showCopied();
+            } catch (err) {
+              btn.textContent = '复制失败';
+              setTimeout(function () {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+              }, 2000);
+            }
+            document.body.removeChild(textarea);
+          }
+        });
+        pre.appendChild(btn);
+      });
+
+      // TOC 生成与滚动高亮
+      const tocNav = document.getElementById('toc-nav');
+      const postContent = document.getElementById('post-content');
+      if (tocNav && postContent) {
+        const headings = postContent.querySelectorAll('h2, h3');
+        if (headings.length > 0) {
+          const tocList = document.createElement('ul');
+          tocList.className = 'toc-list';
+          headings.forEach(function (heading, index) {
+            if (!heading.id) {
+              heading.id = 'heading-' + index;
+            }
+            const li = document.createElement('li');
+            li.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+            const a = document.createElement('a');
+            a.href = '#' + heading.id;
+            a.textContent = heading.textContent;
+            a.addEventListener('click', function (e) {
+              e.preventDefault();
+              heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, null, '#' + heading.id);
+            });
+            li.appendChild(a);
+            tocList.appendChild(li);
+          });
+          tocNav.appendChild(tocList);
+
+          // 滚动高亮
+          const tocLinks = tocList.querySelectorAll('a');
+          const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                tocLinks.forEach(function (link) { link.classList.remove('active'); });
+                const activeLink = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+                if (activeLink) activeLink.classList.add('active');
+              }
+            });
+          }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+          headings.forEach(function (h) { observer.observe(h); });
+        } else {
+          document.getElementById('toc-sidebar').style.display = 'none';
+        }
+      }
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script>
+    (function () {
+      const searchInput = document.getElementById('search-input');
+      const searchResults = document.getElementById('search-results');
+      const searchBox = document.getElementById('search-box');
+      let fuse = null;
+
+      // 加载搜索索引
+      fetch('/group5.github.io/search.json')
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          fuse = new Fuse(data, {
+            keys: ['title', 'content', 'categories', 'tags'],
+            threshold: 0.4,
+            includeScore: true,
+            includeMatches: true
+          });
+        });
+
+      function doSearch(query) {
+        if (!fuse || !query.trim()) {
+          searchResults.innerHTML = '';
+          searchResults.classList.remove('active');
+          return;
+        }
+        const results = fuse.search(query.trim()).slice(0, 8);
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="search-no-results">未找到相关文章</div>';
+          searchResults.classList.add('active');
+          return;
+        }
+        let html = '';
+        results.forEach(function (r) {
+          const post = r.item;
+          html += '<a href="' + post.url + '" class="search-result-item">' +
+            '<div class="search-result-title">' + post.title + '</div>' +
+            '<div class="search-result-meta">' + post.date;
+          if (post.categories && post.categories.length > 0) {
+            html += ' · ' + post.categories.join(', ');
+          }
+          html += '</div></a>';
+        });
+        searchResults.innerHTML = html;
+        searchResults.classList.add('active');
+      }
+
+      let debounceTimer;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          doSearch(searchInput.value);
+        }, 200);
+      });
+
+      searchInput.addEventListener('focus', function () {
+        if (searchInput.value.trim()) {
+          doSearch(searchInput.value);
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          searchResults.classList.remove('active');
+          searchInput.blur();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

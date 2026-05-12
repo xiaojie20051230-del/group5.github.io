@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+      Liquid 模板继承机制与博客架构设计 - 第五组博客
+    
+  </title>
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>Liquid 模板继承机制与博客架构设计 | 第五组博客</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Liquid 模板继承机制与博客架构设计" />
+<meta name="author" content="张三" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="什么是模板继承" />
+<meta name="twitter:description" property="og:description" content="什么是模板继承" />
+<link rel="canonical" href="https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html" />
+<meta property="og:url" content="https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html" />
+<meta property="og:site_name" content="第五组博客" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-05-09T02:00:00+00:00" />
+<meta property="article:modified_time" content="2026-05-09T02:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Liquid 模板继承机制与博客架构设计" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"张三"},"dateModified":"2026-05-09T02:00:00+00:00","datePublished":"2026-05-09T02:00:00+00:00","description":"什么是模板继承","headline":"Liquid 模板继承机制与博客架构设计","mainEntityOfPage":{"@type":"WebPage","@id":"https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html"},"url":"https://xiaojie20051230-del.github.io/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/group5.github.io/assets/css/custom.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="main-nav">
+      <a href="/group5.github.io/" class="logo">第五组博客</a>
+      <ul class="nav-links">
+        <li><a href="/group5.github.io/">首页</a></li>
+        <li><a href="/group5.github.io/about/">关于</a></li>
+        <li><a href="/group5.github.io/categories/">分类</a></li>
+      </ul>
+      <div class="search-box" id="search-box">
+        <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Liquid 模板继承机制与博客架构设计</h1>
+    <div class="post-meta">
+      <span class="post-date">2026年05月09日</span>
+      
+        <span class="post-author">张三</span>
+      
+      
+        <span class="post-categories">
+          
+            <a href="/group5.github.io/categories/#%E6%8A%80%E6%9C%AF">技术</a>
+            , 
+          
+            <a href="/group5.github.io/categories/#Jekyll">Jekyll</a>
+            
+          
+        </span>
+      
+    </div>
+  </header>
+
+  <div class="post-body">
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-sticky">
+        <h3 class="toc-title">目录</h3>
+        <nav class="toc-nav" id="toc-nav"></nav>
+      </div>
+    </aside>
+
+    <div class="post-content" id="post-content">
+      <h2 id="什么是模板继承">什么是模板继承</h2>
+
+<p>在开发博客时，每个页面都有重复的结构：HTML 文档声明、<code class="language-plaintext highlighter-rouge">&lt;head&gt;</code> 中的 SEO 标签、顶部导航栏、底部页脚。如果每个页面都复制粘贴这些内容，维护将是一场噩梦。<strong>模板继承</strong>的作用就是：定义一个基础骨架，子页面只填充变化的部分。</p>
+
+<h2 id="jekyll-的继承链">Jekyll 的继承链</h2>
+
+<p>我们的博客采用了三级继承结构：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>default.html（基础骨架）
+    │
+    ├── post.html（文章布局）
+    │       └── 被 23 篇文章使用
+    │       └── 包含：标题、目录、元信息、正文、标签、上下篇导航
+    │
+    └── page.html（页面布局）
+            └── 被 about / categories 使用
+            └── 包含：简单标题 + 内容
+</code></pre></div></div>
+
+<h2 id="父模板defaulthtml">父模板：default.html</h2>
+
+<p><code class="language-plaintext highlighter-rouge">default.html</code> 负责定义所有页面的公共结构：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"zh-CN"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;title&gt;</span>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}<span class="nt">&lt;/title&gt;</span>
+  {% seo %}
+  <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">href=</span><span class="s">"{{ '/assets/css/custom.css' | relative_url }}"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+  <span class="nt">&lt;header</span> <span class="na">class=</span><span class="s">"site-header"</span><span class="nt">&gt;</span>...<span class="nt">&lt;/header&gt;</span>
+  <span class="nt">&lt;main</span> <span class="na">class=</span><span class="s">"page-content"</span><span class="nt">&gt;</span>
+    {{ content }}
+  <span class="nt">&lt;/main&gt;</span>
+  <span class="nt">&lt;footer</span> <span class="na">class=</span><span class="s">"site-footer"</span><span class="nt">&gt;</span>...<span class="nt">&lt;/footer&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div></div>
+
+<p>关键语法：<code class="language-plaintext highlighter-rouge">{{ content }}</code> 是一个占位符，子模板的内容会被注入到这个位置。</p>
+
+<h2 id="子模板posthtml">子模板：post.html</h2>
+
+<p>文章页面需要特殊的布局：左侧目录、标题元信息、标签、上下篇导航。它通过 Front Matter 声明继承关系：</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">layout</span><span class="pi">:</span> <span class="s">default</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+
+<p>然后在 <code class="language-plaintext highlighter-rouge">{{ content }}</code> 的位置填充自己的结构：</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;article</span> <span class="na">class=</span><span class="s">"post"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;header</span> <span class="na">class=</span><span class="s">"post-header"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"post-title"</span><span class="nt">&gt;</span>{{ page.title }}<span class="nt">&lt;/h1&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"post-meta"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;span&gt;</span>{{ page.date | date: "%Y年%m月%d日" }}<span class="nt">&lt;/span&gt;</span>
+      <span class="nt">&lt;span&gt;</span>{{ page.author }}<span class="nt">&lt;/span&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/header&gt;</span>
+
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"post-body"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;aside</span> <span class="na">class=</span><span class="s">"toc-sidebar"</span><span class="nt">&gt;</span>...<span class="nt">&lt;/aside&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"post-content"</span><span class="nt">&gt;</span>
+      {{ content }}
+    <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/article&gt;</span>
+</code></pre></div></div>
+
+<p>注意这里的双重 <code class="language-plaintext highlighter-rouge">content</code>：</p>
+<ul>
+  <li>第一个 <code class="language-plaintext highlighter-rouge">content</code> 是 <code class="language-plaintext highlighter-rouge">post.html</code> 注入到 <code class="language-plaintext highlighter-rouge">default.html</code> 的整体内容</li>
+  <li>第二个 <code class="language-plaintext highlighter-rouge">content</code> 是 Markdown 文章的正文注入到 <code class="language-plaintext highlighter-rouge">post.html</code> 的位置</li>
+</ul>
+
+<h2 id="渲染流程">渲染流程</h2>
+
+<p>当 Jekyll 处理一篇 Markdown 文章时，完整的渲染流程如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────────┐
+│  Markdown 源文件 │  ← 包含 Front Matter 和正文
+└────────┬────────┘
+         │ 1. 解析 Front Matter，确定使用 post.html
+         ▼
+┌─────────────────┐
+│   post.html     │  ← 将 Markdown 正文插入 &lt;article class="post"&gt;
+  &lt;header class="post-header"&gt;
+    &lt;h1 class="post-title"&gt;静态博客的搜索功能实现原理&lt;/h1&gt;
+    &lt;div class="post-meta"&gt;
+      &lt;span class="post-date"&gt;2026年05月08日&lt;/span&gt;
+      
+        &lt;span class="post-author"&gt;张三&lt;/span&gt;
+      
+      
+        &lt;span class="post-categories"&gt;
+          
+            &lt;a href="/group5.github.io/categories/#%E6%8A%80%E6%9C%AF"&gt;技术&lt;/a&gt;
+            , 
+          
+            &lt;a href="/group5.github.io/categories/#Jekyll"&gt;Jekyll&lt;/a&gt;
+            
+          
+        &lt;/span&gt;
+      
+    &lt;/div&gt;
+  &lt;/header&gt;
+
+  &lt;div class="post-body"&gt;
+    &lt;aside class="toc-sidebar" id="toc-sidebar"&gt;
+      &lt;div class="toc-sticky"&gt;
+        &lt;h3 class="toc-title"&gt;目录&lt;/h3&gt;
+        &lt;nav class="toc-nav" id="toc-nav"&gt;&lt;/nav&gt;
+      &lt;/div&gt;
+    &lt;/aside&gt;
+
+    &lt;div class="post-content" id="post-content"&gt;
+      &lt;h2 id="问题背景"&gt;问题背景&lt;/h2&gt;
+
+&lt;p&gt;静态博客没有数据库，也没有后端服务器。当文章数量增加到 20+ 篇时，读者如何快速找到想要的内容？传统的方案是依赖分类和标签，但这需要读者对内容结构有一定了解。&lt;strong&gt;搜索功能&lt;/strong&gt;成为提升用户体验的关键。&lt;/p&gt;
+
+&lt;h2 id="核心思路预生成索引--客户端查询"&gt;核心思路：预生成索引 + 客户端查询&lt;/h2&gt;
+
+&lt;p&gt;静态博客实现搜索的核心公式可以概括为：&lt;/p&gt;
+
+\[\text{搜索} = \text{预生成索引} + \text{前端加载} + \text{客户端模糊匹配}\]
+
+&lt;p&gt;这与传统动态网站的搜索架构形成鲜明对比：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;维度&lt;/th&gt;
+      &lt;th&gt;动态网站搜索&lt;/th&gt;
+      &lt;th&gt;静态博客搜索&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;后端服务&lt;/td&gt;
+      &lt;td&gt;需要&lt;/td&gt;
+      &lt;td&gt;不需要&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;数据库&lt;/td&gt;
+      &lt;td&gt;MySQL/Elasticsearch&lt;/td&gt;
+      &lt;td&gt;无&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;实时性&lt;/td&gt;
+      &lt;td&gt;实时查询&lt;/td&gt;
+      &lt;td&gt;构建时生成索引&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;维护成本&lt;/td&gt;
+      &lt;td&gt;高&lt;/td&gt;
+      &lt;td&gt;极低&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;适用规模&lt;/td&gt;
+      &lt;td&gt;大型站点&lt;/td&gt;
+      &lt;td&gt;中小型博客&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id="第一步生成搜索索引"&gt;第一步：生成搜索索引&lt;/h2&gt;
+
+&lt;p&gt;Jekyll 构建时，我们用 Liquid 模板遍历所有文章，生成一个 JSON 文件：&lt;/p&gt;
+
+&lt;div class="language-json highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"title"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Jekyll 环境搭建踩坑记录"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"content"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Ruby 安装过程中遇到中文路径问题..."&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"url"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"/jekyll-setup-notes/"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"categories"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"技术"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Jekyll"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"tags"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Jekyll"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Ruby"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"date"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"2026-04-28"&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;对应的 Liquid 代码逻辑：&lt;/p&gt;
+
+&lt;div class="language-liquid highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="cp"&gt;{%&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;site&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;posts&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;%}&lt;/span&gt;
+  {
+    "title": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;title&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "content": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;content&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;strip_html&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;truncate&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "url": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;url&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;relative_url&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "categories": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;categories&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "tags": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;tags&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;
+  }
+&lt;span class="cp"&gt;{%&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;endfor&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;%}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;关键点：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;strip_html&lt;/code&gt; 去除 Markdown 中的 HTML 标签，只保留纯文本&lt;/li&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;truncate: 300&lt;/code&gt; 限制摘要长度，控制索引文件体积&lt;/li&gt;
+  &lt;li&gt;索引文件大小直接影响首次加载速度&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id="第二步前端加载索引"&gt;第二步：前端加载索引&lt;/h2&gt;
+
+&lt;p&gt;页面加载后，通过 &lt;code class="language-plaintext highlighter-rouge"&gt;fetch()&lt;/code&gt; 异步获取索引：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;fuse&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;searchIndex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[];&lt;/span&gt;
+
+&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;/group5.github.io/search.json&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;then&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;res&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;json&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;then&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;searchIndex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="nx"&gt;fuse&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Fuse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="na"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;title&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;content&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;categories&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;tags&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+      &lt;span class="na"&gt;threshold&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="na"&gt;ignoreLocation&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="p"&gt;});&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="第三步fusejs-模糊匹配"&gt;第三步：Fuse.js 模糊匹配&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://fusejs.io/"&gt;Fuse.js&lt;/a&gt; 是一个轻量级的模糊搜索库，支持以下特性：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;容错搜索&lt;/strong&gt;：输入 “jekll” 也能匹配 “jekyll”&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;多字段权重&lt;/strong&gt;：标题匹配的优先级高于正文内容&lt;/li&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;threshold: 0.3&lt;/code&gt;：值越小，匹配越严格；值越大，结果越宽松&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;搜索执行代码：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;performSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[];&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;fuse&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;item&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="交互设计细节"&gt;交互设计细节&lt;/h2&gt;
+
+&lt;h3 id="防抖处理"&gt;防抖处理&lt;/h3&gt;
+
+&lt;p&gt;用户每输入一个字符就触发搜索会造成性能浪费。我们加入 200ms 防抖：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;debounceTimer&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;searchInput&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;addEventListener&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;input&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nf"&gt;clearTimeout&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;debounceTimer&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nx"&gt;debounceTimer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;setTimeout&lt;/span&gt;&lt;span class="p"&gt;(()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;performSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;target&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nf"&gt;renderResults&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;results&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id="键盘导航"&gt;键盘导航&lt;/h3&gt;
+
+&lt;p&gt;支持上下箭头选择结果，Enter 键打开文章：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;addEventListener&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;keydown&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Escape&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;closeResults&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;ArrowDown&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;selectNext&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;ArrowUp&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;selectPrev&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id="移动端适配"&gt;移动端适配&lt;/h3&gt;
+
+&lt;p&gt;搜索结果面板在小屏幕上容易溢出。我们的方案是：&lt;/p&gt;
+
+&lt;div class="language-scss highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="nc"&gt;.search-results&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="m"&gt;320px&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;max-width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="m"&gt;100vw&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="m"&gt;2rem&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="性能数据"&gt;性能数据&lt;/h2&gt;
+
+&lt;p&gt;以本博客 23 篇文章为例：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;指标&lt;/th&gt;
+      &lt;th&gt;数值&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;索引文件大小&lt;/td&gt;
+      &lt;td&gt;~12 KB（gzip 后 ~4 KB）&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;首次加载时间&lt;/td&gt;
+      &lt;td&gt;~50ms（本地网络）&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;单次搜索耗时&lt;/td&gt;
+      &lt;td&gt;&amp;lt; 5ms&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;内存占用&lt;/td&gt;
+      &lt;td&gt;可忽略不计&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id="总结"&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;静态博客的搜索方案证明了：&lt;strong&gt;没有后端，也能实现不错的搜索体验&lt;/strong&gt;。这种架构特别适合个人博客、文档站点等中小型内容场景。如果未来文章数量增长到数百篇，可以考虑：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;分页加载索引（按分类拆分多个 JSON 文件）&lt;/li&gt;
+  &lt;li&gt;接入 Algolia DocSearch 等专业搜索服务&lt;/li&gt;
+  &lt;li&gt;使用 Web Worker 在后台线程执行搜索，避免阻塞 UI&lt;/li&gt;
+&lt;/ol&gt;
+
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;footer class="post-footer"&gt;
+    
+      &lt;div class="post-tags"&gt;
+        
+          &lt;span class="tag"&gt;#搜索&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#Fuse.js&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#JavaScript&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#JSON&lt;/span&gt;
+        
+      &lt;/div&gt;
+    
+
+    &lt;nav class="post-nav"&gt;
+      
+        &lt;a class="prev" href="/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html"&gt;&amp;larr; 响应式布局实践：从固定宽度到流式适配&lt;/a&gt;
+      
+      
+        &lt;a class="next" href="/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html"&gt;Liquid 模板继承机制与博客架构设计 &amp;rarr;&lt;/a&gt;
+      
+    &lt;/nav&gt;
+  &lt;/footer&gt;
+&lt;/article&gt;
+
+└────────┬────────┘
+         │ 2. post.html 继承 default.html
+         ▼
+┌─────────────────┐
+│  default.html   │  ← 将 post.html 的全部内容插入 &lt;article class="post"&gt;
+  &lt;header class="post-header"&gt;
+    &lt;h1 class="post-title"&gt;静态博客的搜索功能实现原理&lt;/h1&gt;
+    &lt;div class="post-meta"&gt;
+      &lt;span class="post-date"&gt;2026年05月08日&lt;/span&gt;
+      
+        &lt;span class="post-author"&gt;张三&lt;/span&gt;
+      
+      
+        &lt;span class="post-categories"&gt;
+          
+            &lt;a href="/group5.github.io/categories/#%E6%8A%80%E6%9C%AF"&gt;技术&lt;/a&gt;
+            , 
+          
+            &lt;a href="/group5.github.io/categories/#Jekyll"&gt;Jekyll&lt;/a&gt;
+            
+          
+        &lt;/span&gt;
+      
+    &lt;/div&gt;
+  &lt;/header&gt;
+
+  &lt;div class="post-body"&gt;
+    &lt;aside class="toc-sidebar" id="toc-sidebar"&gt;
+      &lt;div class="toc-sticky"&gt;
+        &lt;h3 class="toc-title"&gt;目录&lt;/h3&gt;
+        &lt;nav class="toc-nav" id="toc-nav"&gt;&lt;/nav&gt;
+      &lt;/div&gt;
+    &lt;/aside&gt;
+
+    &lt;div class="post-content" id="post-content"&gt;
+      &lt;h2 id="问题背景"&gt;问题背景&lt;/h2&gt;
+
+&lt;p&gt;静态博客没有数据库，也没有后端服务器。当文章数量增加到 20+ 篇时，读者如何快速找到想要的内容？传统的方案是依赖分类和标签，但这需要读者对内容结构有一定了解。&lt;strong&gt;搜索功能&lt;/strong&gt;成为提升用户体验的关键。&lt;/p&gt;
+
+&lt;h2 id="核心思路预生成索引--客户端查询"&gt;核心思路：预生成索引 + 客户端查询&lt;/h2&gt;
+
+&lt;p&gt;静态博客实现搜索的核心公式可以概括为：&lt;/p&gt;
+
+\[\text{搜索} = \text{预生成索引} + \text{前端加载} + \text{客户端模糊匹配}\]
+
+&lt;p&gt;这与传统动态网站的搜索架构形成鲜明对比：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;维度&lt;/th&gt;
+      &lt;th&gt;动态网站搜索&lt;/th&gt;
+      &lt;th&gt;静态博客搜索&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;后端服务&lt;/td&gt;
+      &lt;td&gt;需要&lt;/td&gt;
+      &lt;td&gt;不需要&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;数据库&lt;/td&gt;
+      &lt;td&gt;MySQL/Elasticsearch&lt;/td&gt;
+      &lt;td&gt;无&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;实时性&lt;/td&gt;
+      &lt;td&gt;实时查询&lt;/td&gt;
+      &lt;td&gt;构建时生成索引&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;维护成本&lt;/td&gt;
+      &lt;td&gt;高&lt;/td&gt;
+      &lt;td&gt;极低&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;适用规模&lt;/td&gt;
+      &lt;td&gt;大型站点&lt;/td&gt;
+      &lt;td&gt;中小型博客&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id="第一步生成搜索索引"&gt;第一步：生成搜索索引&lt;/h2&gt;
+
+&lt;p&gt;Jekyll 构建时，我们用 Liquid 模板遍历所有文章，生成一个 JSON 文件：&lt;/p&gt;
+
+&lt;div class="language-json highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"title"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Jekyll 环境搭建踩坑记录"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"content"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Ruby 安装过程中遇到中文路径问题..."&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"url"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"/jekyll-setup-notes/"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"categories"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"技术"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Jekyll"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"tags"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"Jekyll"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"Ruby"&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;&lt;span class="w"&gt;
+    &lt;/span&gt;&lt;span class="nl"&gt;"date"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;"2026-04-28"&lt;/span&gt;&lt;span class="w"&gt;
+  &lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;对应的 Liquid 代码逻辑：&lt;/p&gt;
+
+&lt;div class="language-liquid highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="cp"&gt;{%&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;for&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;in&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;site&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;posts&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;%}&lt;/span&gt;
+  {
+    "title": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;title&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "content": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;content&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;strip_html&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;truncate&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="mi"&gt;300&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "url": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;url&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;relative_url&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "categories": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;categories&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;,
+    "tags": &lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nv"&gt;post&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nv"&gt;tags&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nf"&gt;jsonify&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;
+  }
+&lt;span class="cp"&gt;{%&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;endfor&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;%}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;关键点：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;strip_html&lt;/code&gt; 去除 Markdown 中的 HTML 标签，只保留纯文本&lt;/li&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;truncate: 300&lt;/code&gt; 限制摘要长度，控制索引文件体积&lt;/li&gt;
+  &lt;li&gt;索引文件大小直接影响首次加载速度&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id="第二步前端加载索引"&gt;第二步：前端加载索引&lt;/h2&gt;
+
+&lt;p&gt;页面加载后，通过 &lt;code class="language-plaintext highlighter-rouge"&gt;fetch()&lt;/code&gt; 异步获取索引：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;fuse&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;searchIndex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[];&lt;/span&gt;
+
+&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;/group5.github.io/search.json&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;then&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;res&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;res&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;json&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+  &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;then&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nx"&gt;searchIndex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="nx"&gt;fuse&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="nc"&gt;Fuse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;data&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="na"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;title&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;content&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;categories&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;tags&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+      &lt;span class="na"&gt;threshold&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.3&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+      &lt;span class="na"&gt;ignoreLocation&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;
+    &lt;span class="p"&gt;});&lt;/span&gt;
+  &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="第三步fusejs-模糊匹配"&gt;第三步：Fuse.js 模糊匹配&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href="https://fusejs.io/"&gt;Fuse.js&lt;/a&gt; 是一个轻量级的模糊搜索库，支持以下特性：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;容错搜索&lt;/strong&gt;：输入 “jekll” 也能匹配 “jekyll”&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;多字段权重&lt;/strong&gt;：标题匹配的优先级高于正文内容&lt;/li&gt;
+  &lt;li&gt;&lt;code class="language-plaintext highlighter-rouge"&gt;threshold: 0.3&lt;/code&gt;：值越小，匹配越严格；值越大，结果越宽松&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;搜索执行代码：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;function&lt;/span&gt; &lt;span class="nf"&gt;performSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[];&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nx"&gt;fuse&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;query&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;r&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="nx"&gt;r&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;item&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="交互设计细节"&gt;交互设计细节&lt;/h2&gt;
+
+&lt;h3 id="防抖处理"&gt;防抖处理&lt;/h3&gt;
+
+&lt;p&gt;用户每输入一个字符就触发搜索会造成性能浪费。我们加入 200ms 防抖：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="kd"&gt;let&lt;/span&gt; &lt;span class="nx"&gt;debounceTimer&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="nx"&gt;searchInput&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;addEventListener&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;input&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nf"&gt;clearTimeout&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;debounceTimer&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="nx"&gt;debounceTimer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;setTimeout&lt;/span&gt;&lt;span class="p"&gt;(()&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kd"&gt;const&lt;/span&gt; &lt;span class="nx"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nf"&gt;performSearch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;target&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;value&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="nf"&gt;renderResults&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;results&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id="键盘导航"&gt;键盘导航&lt;/h3&gt;
+
+&lt;p&gt;支持上下箭头选择结果，Enter 键打开文章：&lt;/p&gt;
+
+&lt;div class="language-javascript highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;addEventListener&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;keydown&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;Escape&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;closeResults&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;ArrowDown&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;selectNext&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;e&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;key&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="s1"&gt;ArrowUp&lt;/span&gt;&lt;span class="dl"&gt;'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="nf"&gt;selectPrev&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id="移动端适配"&gt;移动端适配&lt;/h3&gt;
+
+&lt;p&gt;搜索结果面板在小屏幕上容易溢出。我们的方案是：&lt;/p&gt;
+
+&lt;div class="language-scss highlighter-rouge"&gt;&lt;div class="highlight"&gt;&lt;pre class="highlight"&gt;&lt;code&gt;&lt;span class="nc"&gt;.search-results&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nl"&gt;width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="m"&gt;320px&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+  &lt;span class="nl"&gt;max-width&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="m"&gt;100vw&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="m"&gt;2rem&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id="性能数据"&gt;性能数据&lt;/h2&gt;
+
+&lt;p&gt;以本博客 23 篇文章为例：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;指标&lt;/th&gt;
+      &lt;th&gt;数值&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;索引文件大小&lt;/td&gt;
+      &lt;td&gt;~12 KB（gzip 后 ~4 KB）&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;首次加载时间&lt;/td&gt;
+      &lt;td&gt;~50ms（本地网络）&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;单次搜索耗时&lt;/td&gt;
+      &lt;td&gt;&amp;lt; 5ms&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;内存占用&lt;/td&gt;
+      &lt;td&gt;可忽略不计&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id="总结"&gt;总结&lt;/h2&gt;
+
+&lt;p&gt;静态博客的搜索方案证明了：&lt;strong&gt;没有后端，也能实现不错的搜索体验&lt;/strong&gt;。这种架构特别适合个人博客、文档站点等中小型内容场景。如果未来文章数量增长到数百篇，可以考虑：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;分页加载索引（按分类拆分多个 JSON 文件）&lt;/li&gt;
+  &lt;li&gt;接入 Algolia DocSearch 等专业搜索服务&lt;/li&gt;
+  &lt;li&gt;使用 Web Worker 在后台线程执行搜索，避免阻塞 UI&lt;/li&gt;
+&lt;/ol&gt;
+
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;footer class="post-footer"&gt;
+    
+      &lt;div class="post-tags"&gt;
+        
+          &lt;span class="tag"&gt;#搜索&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#Fuse.js&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#JavaScript&lt;/span&gt;
+        
+          &lt;span class="tag"&gt;#JSON&lt;/span&gt;
+        
+      &lt;/div&gt;
+    
+
+    &lt;nav class="post-nav"&gt;
+      
+        &lt;a class="prev" href="/group5.github.io/%E6%8A%80%E6%9C%AF/%E5%89%8D%E7%AB%AF/2026/05/08/responsive-design-practice.html"&gt;&amp;larr; 响应式布局实践：从固定宽度到流式适配&lt;/a&gt;
+      
+      
+        &lt;a class="next" href="/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/09/liquid-template-inheritance.html"&gt;Liquid 模板继承机制与博客架构设计 &amp;rarr;&lt;/a&gt;
+      
+    &lt;/nav&gt;
+  &lt;/footer&gt;
+&lt;/article&gt;
+
+└────────┬────────┘
+         │ 3. 生成最终 HTML
+         ▼
+┌─────────────────┐
+│   输出文件       │  ← _site/ 目录中的 .html 文件
+└─────────────────┘
+</code></pre></div></div>
+
+<h2 id="实用技巧">实用技巧</h2>
+
+<h3 id="条件判断">条件判断</h3>
+
+<p>在模板中经常需要根据页面类型显示不同内容：</p>
+
+<div class="language-liquid highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">{%</span><span class="w"> </span><span class="nt">if</span><span class="w"> </span><span class="nv">page</span><span class="p">.</span><span class="nv">layout</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'post'</span><span class="w"> </span><span class="cp">%}</span>
+  &lt;div class="post-nav"&gt;...&lt;/div&gt;
+<span class="cp">{%</span><span class="w"> </span><span class="nt">endif</span><span class="w"> </span><span class="cp">%}</span>
+</code></pre></div></div>
+
+<h3 id="循环遍历">循环遍历</h3>
+
+<p>分类页面需要遍历所有文章并按分类分组：</p>
+
+<div class="language-liquid highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">{%</span><span class="w"> </span><span class="nt">for</span><span class="w"> </span><span class="nv">category</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nv">site</span><span class="p">.</span><span class="nv">categories</span><span class="w"> </span><span class="cp">%}</span>
+  &lt;h2&gt;<span class="cp">{{</span><span class="w"> </span><span class="nv">category</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="cp">}}</span>&lt;/h2&gt;
+  <span class="cp">{%</span><span class="w"> </span><span class="nt">for</span><span class="w"> </span><span class="nv">post</span><span class="w"> </span><span class="nt">in</span><span class="w"> </span><span class="nv">category</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="cp">%}</span>
+    &lt;a href="<span class="cp">{{</span><span class="w"> </span><span class="nv">post</span><span class="p">.</span><span class="nv">url</span><span class="w"> </span><span class="cp">}}</span>"&gt;<span class="cp">{{</span><span class="w"> </span><span class="nv">post</span><span class="p">.</span><span class="nv">title</span><span class="w"> </span><span class="cp">}}</span>&lt;/a&gt;
+  <span class="cp">{%</span><span class="w"> </span><span class="nt">endfor</span><span class="w"> </span><span class="cp">%}</span>
+<span class="cp">{%</span><span class="w"> </span><span class="nt">endfor</span><span class="w"> </span><span class="cp">%}</span>
+</code></pre></div></div>
+
+<h3 id="过滤器">过滤器</h3>
+
+<p>Liquid 提供丰富的过滤器处理数据：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>过滤器</th>
+      <th>作用</th>
+      <th>示例</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">date</code></td>
+      <td>格式化日期</td>
+      <td><code class="language-plaintext highlighter-rouge">{{ "2026-05-01" | date: "%Y年%m月%d日" }}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">relative_url</code></td>
+      <td>生成相对路径</td>
+      <td><code class="language-plaintext highlighter-rouge">{{ "/about/" | relative_url }}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">strip_html</code></td>
+      <td>去除 HTML 标签</td>
+      <td><code class="language-plaintext highlighter-rouge">{{ "&lt;p&gt;text&lt;/p&gt;" | strip_html }}</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">truncate</code></td>
+      <td>截断字符串</td>
+      <td><code class="language-plaintext highlighter-rouge">{{ "long text" | truncate: 10 }}</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="总结">总结</h2>
+
+<p>模板继承让博客的代码高度 DRY（Don’t Repeat Yourself）。我们的博客虽然只有 3 个布局文件，却支撑了 20+ 个页面的渲染。理解这个机制后，新增页面类型（比如标签页、归档页）也变得非常容易——只需新建一个继承 <code class="language-plaintext highlighter-rouge">default.html</code> 的布局即可。</p>
+
+    </div>
+  </div>
+
+  <footer class="post-footer">
+    
+      <div class="post-tags">
+        
+          <span class="tag">#Liquid</span>
+        
+          <span class="tag">#模板引擎</span>
+        
+          <span class="tag">#布局</span>
+        
+          <span class="tag">#前端架构</span>
+        
+      </div>
+    
+
+    <nav class="post-nav">
+      
+        <a class="prev" href="/group5.github.io/%E6%8A%80%E6%9C%AF/jekyll/2026/05/08/search-implementation.html">&larr; 静态博客的搜索功能实现原理</a>
+      
+      
+        <a class="next" href="/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/09/post-video-youtube.html">Post: Video (YouTube) &rarr;</a>
+      
+    </nav>
+  </footer>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 第五组博客 | 使用 Jekyll &amp; GitHub Pages 构建</p>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" title="返回顶部"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4l-8 8h6v8h4v-8h6z"/></svg></button>
+
+  <script>
+    (function () {
+      // 返回顶部
+      const backToTop = document.getElementById('back-to-top');
+      function toggleBackToTop() {
+        if (window.scrollY > 300) {
+          backToTop.classList.add('show');
+        } else {
+          backToTop.classList.remove('show');
+        }
+      }
+      window.addEventListener('scroll', toggleBackToTop, { passive: true });
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // 代码复制按钮
+      document.querySelectorAll('pre').forEach(function (pre) {
+        const btn = document.createElement('button');
+        btn.className = 'code-copy-btn';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+        btn.addEventListener('click', function () {
+          const code = pre.querySelector('code');
+          const text = code ? code.textContent : pre.textContent;
+
+          function showCopied() {
+            btn.classList.add('copied');
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 已复制';
+            setTimeout(function () {
+              btn.classList.remove('copied');
+              btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+            }, 2000);
+          }
+
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+
+          function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              document.execCommand('copy');
+              showCopied();
+            } catch (err) {
+              btn.textContent = '复制失败';
+              setTimeout(function () {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+              }, 2000);
+            }
+            document.body.removeChild(textarea);
+          }
+        });
+        pre.appendChild(btn);
+      });
+
+      // TOC 生成与滚动高亮
+      const tocNav = document.getElementById('toc-nav');
+      const postContent = document.getElementById('post-content');
+      if (tocNav && postContent) {
+        const headings = postContent.querySelectorAll('h2, h3');
+        if (headings.length > 0) {
+          const tocList = document.createElement('ul');
+          tocList.className = 'toc-list';
+          headings.forEach(function (heading, index) {
+            if (!heading.id) {
+              heading.id = 'heading-' + index;
+            }
+            const li = document.createElement('li');
+            li.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+            const a = document.createElement('a');
+            a.href = '#' + heading.id;
+            a.textContent = heading.textContent;
+            a.addEventListener('click', function (e) {
+              e.preventDefault();
+              heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, null, '#' + heading.id);
+            });
+            li.appendChild(a);
+            tocList.appendChild(li);
+          });
+          tocNav.appendChild(tocList);
+
+          // 滚动高亮
+          const tocLinks = tocList.querySelectorAll('a');
+          const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                tocLinks.forEach(function (link) { link.classList.remove('active'); });
+                const activeLink = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+                if (activeLink) activeLink.classList.add('active');
+              }
+            });
+          }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+          headings.forEach(function (h) { observer.observe(h); });
+        } else {
+          document.getElementById('toc-sidebar').style.display = 'none';
+        }
+      }
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script>
+    (function () {
+      const searchInput = document.getElementById('search-input');
+      const searchResults = document.getElementById('search-results');
+      const searchBox = document.getElementById('search-box');
+      let fuse = null;
+
+      // 加载搜索索引
+      fetch('/group5.github.io/search.json')
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          fuse = new Fuse(data, {
+            keys: ['title', 'content', 'categories', 'tags'],
+            threshold: 0.4,
+            includeScore: true,
+            includeMatches: true
+          });
+        });
+
+      function doSearch(query) {
+        if (!fuse || !query.trim()) {
+          searchResults.innerHTML = '';
+          searchResults.classList.remove('active');
+          return;
+        }
+        const results = fuse.search(query.trim()).slice(0, 8);
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="search-no-results">未找到相关文章</div>';
+          searchResults.classList.add('active');
+          return;
+        }
+        let html = '';
+        results.forEach(function (r) {
+          const post = r.item;
+          html += '<a href="' + post.url + '" class="search-result-item">' +
+            '<div class="search-result-title">' + post.title + '</div>' +
+            '<div class="search-result-meta">' + post.date;
+          if (post.categories && post.categories.length > 0) {
+            html += ' · ' + post.categories.join(', ');
+          }
+          html += '</div></a>';
+        });
+        searchResults.innerHTML = html;
+        searchResults.classList.add('active');
+      }
+
+      let debounceTimer;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          doSearch(searchInput.value);
+        }, 200);
+      });
+
+      searchInput.addEventListener('focus', function () {
+        if (searchInput.value.trim()) {
+          doSearch(searchInput.value);
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          searchResults.classList.remove('active');
+          searchInput.blur();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

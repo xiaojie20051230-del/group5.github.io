@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    
+      Post: Image (Standard) - 第五组博客
+    
+  </title>
+  <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>Post: Image (Standard) | 第五组博客</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Post: Image (Standard)" />
+<meta name="author" content="示例作者" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The preferred way of using images is placing them in the /images/ directory and referencing them with an absolute path. Prepending the filename with {{ site.url }}{{ site.baseurl }}/images/ will make sure your images display properly in feeds and such." />
+<meta name="twitter:description" property="og:description" content="The preferred way of using images is placing them in the /images/ directory and referencing them with an absolute path. Prepending the filename with {{ site.url }}{{ site.baseurl }}/images/ will make sure your images display properly in feeds and such." />
+<link rel="canonical" href="https://xiaojie20051230-del.github.io/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/06/post-image-standard.html" />
+<meta property="og:url" content="https://xiaojie20051230-del.github.io/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/06/post-image-standard.html" />
+<meta property="og:site_name" content="第五组博客" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-05-06T02:00:00+00:00" />
+<meta property="article:modified_time" content="2026-05-06T02:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Post: Image (Standard)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"示例作者"},"dateModified":"2026-05-06T02:00:00+00:00","datePublished":"2026-05-06T02:00:00+00:00","description":"The preferred way of using images is placing them in the /images/ directory and referencing them with an absolute path. Prepending the filename with {{ site.url }}{{ site.baseurl }}/images/ will make sure your images display properly in feeds and such.","headline":"Post: Image (Standard)","mainEntityOfPage":{"@type":"WebPage","@id":"https://xiaojie20051230-del.github.io/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/06/post-image-standard.html"},"url":"https://xiaojie20051230-del.github.io/group5.github.io/%E7%A4%BA%E4%BE%8B/%E5%A4%9A%E5%AA%92%E4%BD%93/2026/05/06/post-image-standard.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/group5.github.io/assets/css/custom.css">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="main-nav">
+      <a href="/group5.github.io/" class="logo">第五组博客</a>
+      <ul class="nav-links">
+        <li><a href="/group5.github.io/">首页</a></li>
+        <li><a href="/group5.github.io/about/">关于</a></li>
+        <li><a href="/group5.github.io/categories/">分类</a></li>
+      </ul>
+      <div class="search-box" id="search-box">
+        <input type="text" id="search-input" placeholder="搜索文章..." autocomplete="off">
+        <div class="search-results" id="search-results"></div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title">Post: Image (Standard)</h1>
+    <div class="post-meta">
+      <span class="post-date">2026年05月06日</span>
+      
+        <span class="post-author">示例作者</span>
+      
+      
+        <span class="post-categories">
+          
+            <a href="/group5.github.io/categories/#%E7%A4%BA%E4%BE%8B">示例</a>
+            , 
+          
+            <a href="/group5.github.io/categories/#%E5%A4%9A%E5%AA%92%E4%BD%93">多媒体</a>
+            
+          
+        </span>
+      
+    </div>
+  </header>
+
+  <div class="post-body">
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-sticky">
+        <h3 class="toc-title">目录</h3>
+        <nav class="toc-nav" id="toc-nav"></nav>
+      </div>
+    </aside>
+
+    <div class="post-content" id="post-content">
+      <p>The preferred way of using images is placing them in the <code class="language-plaintext highlighter-rouge">/images/</code> directory and referencing them with an absolute path. Prepending the filename with <code class="language-plaintext highlighter-rouge">{{ site.url }}{{ site.baseurl }}/images/</code> will make sure your images display properly in feeds and such.</p>
+
+<p>Standard image with no width modifier classes applied.</p>
+
+<p><strong>HTML:</strong></p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"{{ site.url }}{{ site.baseurl }}/images/filename.jpg"</span> <span class="na">alt=</span><span class="s">""</span><span class="nt">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>or Kramdown:</strong></p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">![</span><span class="nv">alt</span><span class="p">](</span><span class="sx">{{</span> site.url }}{{ site.baseurl }}/images/filename.jpg)
+</code></pre></div></div>
+
+<p><img src="https://xiaojie20051230-del.github.io/group5.github.io/images/unsplash-image-9.jpg" alt="Unsplash image 9" /></p>
+
+<p>Image that fills page content container by adding the <code class="language-plaintext highlighter-rouge">.full</code> class with:</p>
+
+<p><strong>HTML:</strong></p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"{{ site.url }}{{ site.baseurl }}/images/filename.jpg"</span> <span class="na">alt=</span><span class="s">""</span> <span class="na">class=</span><span class="s">"full"</span><span class="nt">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>or Kramdown:</strong></p>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">![</span><span class="nv">alt</span><span class="p">](</span><span class="sx">{{</span> site.url }}{{ site.baseurl }}/images/filename.jpg)
+{: .full}
+</code></pre></div></div>
+
+<p class="full"><img src="https://xiaojie20051230-del.github.io/group5.github.io/images/unsplash-image-10.jpg" alt="Unsplash image 10" /></p>
+
+<hr />
+
+<blockquote>
+  <p><strong>声明</strong>：本文内容摘自 <a href="https://github.com/mmistakes/jekyll-sample-content">mmistakes/jekyll-sample-content</a>，MIT 许可证，仅用于 Jekyll 主题功能演示。</p>
+</blockquote>
+
+
+    </div>
+  </div>
+
+  <footer class="post-footer">
+    
+      <div class="post-tags">
+        
+          <span class="tag">#示例</span>
+        
+          <span class="tag">#图片</span>
+        
+          <span class="tag">#视频</span>
+        
+      </div>
+    
+
+    <nav class="post-nav">
+      
+        <a class="prev" href="/group5.github.io/%E6%8A%80%E6%9C%AF/%E6%B5%8B%E8%AF%95/2026/05/06/local-testing-issues.html">&larr; 本地测试中发现的问题与修复</a>
+      
+      
+        <a class="next" href="/group5.github.io/%E6%8A%80%E6%9C%AF/devops/2026/05/07/github-actions-deploy.html">GitHub Actions 自动部署实战 &rarr;</a>
+      
+    </nav>
+  </footer>
+</article>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 第五组博客 | 使用 Jekyll &amp; GitHub Pages 构建</p>
+  </footer>
+
+  <button class="back-to-top" id="back-to-top" title="返回顶部"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 4l-8 8h6v8h4v-8h6z"/></svg></button>
+
+  <script>
+    (function () {
+      // 返回顶部
+      const backToTop = document.getElementById('back-to-top');
+      function toggleBackToTop() {
+        if (window.scrollY > 300) {
+          backToTop.classList.add('show');
+        } else {
+          backToTop.classList.remove('show');
+        }
+      }
+      window.addEventListener('scroll', toggleBackToTop, { passive: true });
+      backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // 代码复制按钮
+      document.querySelectorAll('pre').forEach(function (pre) {
+        const btn = document.createElement('button');
+        btn.className = 'code-copy-btn';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+        btn.addEventListener('click', function () {
+          const code = pre.querySelector('code');
+          const text = code ? code.textContent : pre.textContent;
+
+          function showCopied() {
+            btn.classList.add('copied');
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 已复制';
+            setTimeout(function () {
+              btn.classList.remove('copied');
+              btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+            }, 2000);
+          }
+
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+
+          function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              document.execCommand('copy');
+              showCopied();
+            } catch (err) {
+              btn.textContent = '复制失败';
+              setTimeout(function () {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> 复制';
+              }, 2000);
+            }
+            document.body.removeChild(textarea);
+          }
+        });
+        pre.appendChild(btn);
+      });
+
+      // TOC 生成与滚动高亮
+      const tocNav = document.getElementById('toc-nav');
+      const postContent = document.getElementById('post-content');
+      if (tocNav && postContent) {
+        const headings = postContent.querySelectorAll('h2, h3');
+        if (headings.length > 0) {
+          const tocList = document.createElement('ul');
+          tocList.className = 'toc-list';
+          headings.forEach(function (heading, index) {
+            if (!heading.id) {
+              heading.id = 'heading-' + index;
+            }
+            const li = document.createElement('li');
+            li.className = heading.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+            const a = document.createElement('a');
+            a.href = '#' + heading.id;
+            a.textContent = heading.textContent;
+            a.addEventListener('click', function (e) {
+              e.preventDefault();
+              heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, null, '#' + heading.id);
+            });
+            li.appendChild(a);
+            tocList.appendChild(li);
+          });
+          tocNav.appendChild(tocList);
+
+          // 滚动高亮
+          const tocLinks = tocList.querySelectorAll('a');
+          const observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                tocLinks.forEach(function (link) { link.classList.remove('active'); });
+                const activeLink = tocList.querySelector('a[href="#' + entry.target.id + '"]');
+                if (activeLink) activeLink.classList.add('active');
+              }
+            });
+          }, { rootMargin: '-10% 0px -80% 0px', threshold: 0 });
+          headings.forEach(function (h) { observer.observe(h); });
+        } else {
+          document.getElementById('toc-sidebar').style.display = 'none';
+        }
+      }
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+  <script>
+    (function () {
+      const searchInput = document.getElementById('search-input');
+      const searchResults = document.getElementById('search-results');
+      const searchBox = document.getElementById('search-box');
+      let fuse = null;
+
+      // 加载搜索索引
+      fetch('/group5.github.io/search.json')
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          fuse = new Fuse(data, {
+            keys: ['title', 'content', 'categories', 'tags'],
+            threshold: 0.4,
+            includeScore: true,
+            includeMatches: true
+          });
+        });
+
+      function doSearch(query) {
+        if (!fuse || !query.trim()) {
+          searchResults.innerHTML = '';
+          searchResults.classList.remove('active');
+          return;
+        }
+        const results = fuse.search(query.trim()).slice(0, 8);
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="search-no-results">未找到相关文章</div>';
+          searchResults.classList.add('active');
+          return;
+        }
+        let html = '';
+        results.forEach(function (r) {
+          const post = r.item;
+          html += '<a href="' + post.url + '" class="search-result-item">' +
+            '<div class="search-result-title">' + post.title + '</div>' +
+            '<div class="search-result-meta">' + post.date;
+          if (post.categories && post.categories.length > 0) {
+            html += ' · ' + post.categories.join(', ');
+          }
+          html += '</div></a>';
+        });
+        searchResults.innerHTML = html;
+        searchResults.classList.add('active');
+      }
+
+      let debounceTimer;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          doSearch(searchInput.value);
+        }, 200);
+      });
+
+      searchInput.addEventListener('focus', function () {
+        if (searchInput.value.trim()) {
+          doSearch(searchInput.value);
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!searchBox.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          searchResults.classList.remove('active');
+          searchInput.blur();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
