@@ -1,0 +1,27 @@
+# 站点基础信息
+title: "第五组博客"
+email: group5@example.com
+description: >-
+  欢迎来到第五组的技术博客。
+  这里记录我们的学习笔记、项目经验与技术分享。
+
+baseurl: ""
+url: "https://group5.github.io"
+
+# 社交媒体
+twitter_username: group5
+github_username: group5-blog
+
+# 主题与插件
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# 构建设置
+markdown: kramdown
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - project-docs/

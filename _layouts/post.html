@@ -1,0 +1,55 @@
+---
+layout: default
+---
+
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <div class="post-meta">
+      <span class="post-date">{{ page.date | date: "%Y年%m月%d日" }}</span>
+      {% if page.author %}
+        <span class="post-author">{{ page.author }}</span>
+      {% endif %}
+      {% if page.categories %}
+        <span class="post-categories">
+          {% for cat in page.categories %}
+            <a href="{{ '/categories/#' | append: cat | relative_url }}">{{ cat }}</a>
+            {% unless forloop.last %}, {% endunless %}
+          {% endfor %}
+        </span>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="post-body">
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-sticky">
+        <h3 class="toc-title">目录</h3>
+        <nav class="toc-nav" id="toc-nav"></nav>
+      </div>
+    </aside>
+
+    <div class="post-content" id="post-content">
+      {{ content }}
+    </div>
+  </div>
+
+  <footer class="post-footer">
+    {% if page.tags %}
+      <div class="post-tags">
+        {% for tag in page.tags %}
+          <span class="tag">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <nav class="post-nav">
+      {% if page.previous %}
+        <a class="prev" href="{{ page.previous.url | relative_url }}">&larr; {{ page.previous.title }}</a>
+      {% endif %}
+      {% if page.next %}
+        <a class="next" href="{{ page.next.url | relative_url }}">{{ page.next.title }} &rarr;</a>
+      {% endif %}
+    </nav>
+  </footer>
+</article>
