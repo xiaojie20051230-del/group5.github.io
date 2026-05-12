@@ -5,8 +5,8 @@ description: >-
   欢迎来到第五组的技术博客。
   这里记录我们的学习笔记、项目经验与技术分享。
 
-baseurl: ""
-url: "https://group5.github.io"
+baseurl: "/group5.github.io"
+url: "https://xiaojie20051230-del.github.io"
 
 # 社交媒体
 twitter_username: group5
